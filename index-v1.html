@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>美思李工资条查询</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:760px;width:100%;overflow:hidden}
+.card-header{background:linear-gradient(135deg,#1f3a5f,#2d5a8e);color:#fff;padding:28px 24px;text-align:center}
+.card-header h1{font-size:24px;margin-bottom:4px}
+.card-header p{font-size:13px;opacity:.8}
+.card-body{padding:28px 24px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:14px;color:#555;margin-bottom:6px;font-weight:600}
+.field input,.field select{width:100%;padding:12px 14px;border:2px solid #e0e0e0;border-radius:10px;font-size:16px;transition:border-color .2s;background:#fff}
+.field input:focus,.field select:focus{outline:none;border-color:#2d5a8e}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#1f3a5f,#2d5a8e);color:#fff;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:active{opacity:.85}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin-top:14px;padding:10px 14px;border-radius:8px;font-size:14px;text-align:center;display:none}
+.msg.error{background:#fef0f0;color:#f56c6c;display:block}
+.msg.info{background:#f4f4f5;color:#909399;display:block}
+.result{margin-top:20px;display:none}
+.multi-tip{font-size:13px;color:#2d5a8e;font-weight:600;margin-bottom:10px;display:none}
+.img-list{display:flex;flex-direction:column;gap:14px}
+.img-card{border:1px solid #e8e8e8;border-radius:8px;background:#fafbfc;overflow:hidden}
+.img-card .cap{font-size:12px;color:#888;padding:6px 10px;background:#f3f6fa;border-bottom:1px solid #eee}
+.img-scroll{max-height:80vh;overflow:auto;-webkit-overflow-scrolling:touch;background:#fafbfc}
+.img-scroll img{display:block;width:auto;max-width:none;height:auto;cursor:zoom-in}
+.save-link{display:inline-block;margin:8px 10px 10px;padding:6px 16px;background:#e8f4fd;color:#2d5a8e;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600}
+.tip{margin-top:10px;font-size:12px;color:#999;line-height:1.6}
+.save-tip{margin-top:14px;padding:12px 14px;border:2px solid #ff9a3c;border-radius:10px;background:#fff7ef;color:#c8541a;font-size:14px;font-weight:700;line-height:1.7}
+.save-tip b{color:#e23c00}
+.save-tip .st-sub{display:block;margin-top:4px;font-size:12px;font-weight:600;color:#a85a2c}
+.card-footer{padding:16px 24px;text-align:center;font-size:12px;color:#bbb;border-top:1px solid #f0f0f0}
+/* 全屏放大层 */
+.lightbox{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;overflow:hidden;touch-action:none}
+.lightbox.show{display:flex}
+.lightbox img{width:auto;height:auto;max-width:none;max-height:none;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.lb-close{position:fixed;top:14px;right:18px;width:40px;height:40px;line-height:38px;text-align:center;color:#fff;font-size:26px;border:1px solid rgba(255,255,255,.5);border-radius:50%;z-index:10000}
+.lb-hint{position:fixed;bottom:16px;left:0;width:100%;text-align:center;color:rgba(255,255,255,.7);font-size:12px;z-index:10000}
+.lb-count{position:fixed;top:16px;left:0;width:100%;text-align:center;color:#fff;font-size:13px;font-weight:600;z-index:10000}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <h1>美思李工资条查询</h1>
+    <p>请选择月份，输入姓名和密码查看本人工资条</p>
+  </div>
+  <div class="card-body">
+    <div class="field">
+      <label>月份</label>
+      <select id="month"><option>加载中...</option></select>
+    </div>
+    <div class="field">
+      <label>姓名</label>
+      <input type="text" id="name" placeholder="请输入姓名" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input type="password" id="code" placeholder="请输入密码" autocomplete="off">
+    </div>
+    <button class="btn" id="btn" onclick="doQuery()">查 询</button>
+    <div class="msg" id="msg"></div>
+    <div class="result" id="result">
+      <div class="multi-tip" id="multiTip"></div>
+      <div class="img-list" id="imgList"></div>
+      <div class="tip">工资条已按原图大小显示，可左右滑动查看；点图片进入全屏，双击放大、左右拖动看细节，多张可左右滑动切换。</div>
+      <div class="save-tip">⚠ 请务必及时保存本人工资条！<span class="st-sub">链接可能失效，请每月及时保存。保存方式：点「保存到相册」用系统分享存入手机，或长按图片选「存储到照片」。</span></div>
+    </div>
+  </div>
+  <div class="card-footer">如有疑问请联系财务 · 请勿泄露密码</div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <span class="lb-close" id="lbClose">×</span>
+  <div class="lb-count" id="lbCount"></div>
+  <img id="lbImg" src="" alt="工资条大图">
+  <div class="lb-hint">双击放大 · 左右拖动查看 · 双指捏合缩放 · 多张左右滑动切换 · 点×或空白处关闭</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

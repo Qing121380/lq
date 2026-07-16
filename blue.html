@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>美思李工资条查询</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","幼圆","Comic Sans MS",cursive,sans-serif;background:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(127,208,255,.22);max-width:760px;width:100%;overflow:hidden;border:1px solid #d8f1ff}
+.card-header{background:#ebf8fe;color:#fff;position:relative;padding:0}
+.card-header .header-banner{position:relative;line-height:0;height:160px;overflow:hidden}
+.card-header .header-bg{width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
+.card-header .header-title{position:absolute;bottom:20px;left:0;width:100%;text-align:center;padding:0 16px}
+.card-header h1{font-size:24px;margin-bottom:4px;color:#fff;text-shadow:0 2px 6px rgba(40,120,160,.55),0 0 2px rgba(40,120,160,.4)}
+.card-header p{font-size:12px;color:#fff;font-weight:600;text-shadow:0 1px 4px rgba(40,120,160,.5);white-space:nowrap}
+.card-body{padding:28px 24px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:14px;color:#5aa7d0;margin-bottom:6px;font-weight:700}
+.field input,.field select{width:100%;padding:13px 16px;border:2px solid #d0efff;border-radius:14px;font-size:16px;transition:all .2s;background:#fff;color:#4a7e9c}
+.field input:focus,.field select:focus{outline:none;border-color:#7fd0ff;box-shadow:0 0 0 4px rgba(127,208,255,.18)}
+.field input::placeholder{color:#b0d6ea}
+.btn{width:100%;padding:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#7fd0ff;color:#fff;border:none;border-radius:50px;font-size:18px;font-weight:800;letter-spacing:1px;cursor:pointer;transition:all .2s;box-shadow:0 6px 18px rgba(127,208,255,.35)}
+.btn-icon{width:26px;height:26px;object-fit:contain;vertical-align:middle;filter:drop-shadow(0 1px 1px rgba(0,0,0,.1))}
+.btn:hover{background:#6ec8ff}
+.btn:active{opacity:.9;transform:translateY(2px)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{margin-top:14px;padding:10px 14px;border-radius:12px;font-size:14px;text-align:center;display:none;font-weight:600}
+.msg.error{background:#fff0f0;color:#f56c6c;display:block}
+.msg.info{background:#f0f8ff;color:#6baed0;display:block}
+.result{margin-top:20px;display:none}
+.multi-tip{font-size:13px;color:#5aa7d0;font-weight:700;margin-bottom:10px;display:none}
+.img-list{display:flex;flex-direction:column;gap:14px}
+.img-card{border:1px solid #d0efff;border-radius:12px;background:#fafbfc;overflow:hidden}
+.img-card .cap{font-size:12px;color:#7ab2d0;padding:6px 10px;background:#f0f9ff;border-bottom:1px solid #e2f4ff}
+.img-scroll{max-height:80vh;overflow:auto;-webkit-overflow-scrolling:touch;background:#fafbfc}
+.img-scroll img{display:block;width:auto;max-width:none;height:auto;cursor:zoom-in}
+.save-link{display:inline-block;margin:8px 10px 10px;padding:6px 16px;background:#e0f7ff;color:#4a8db5;border-radius:12px;text-decoration:none;font-size:13px;font-weight:700}
+.tip{margin-top:10px;font-size:12px;color:#8abbd4;line-height:1.6}
+.save-tip{margin-top:14px;padding:12px 14px;border:2px solid #ffd1a9;border-radius:14px;background:#fff8f0;color:#d66e32;font-size:14px;font-weight:700;line-height:1.7}
+.save-tip b{color:#e23c00}
+.save-tip .st-sub{display:block;margin-top:4px;font-size:12px;font-weight:600;color:#b87a55}
+.card-footer{padding:16px 24px;text-align:center;font-size:12px;color:#a0cbe0;border-top:1px solid #e2f4ff}
+/* 全屏放大层 */
+.lightbox{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:9999;overflow:hidden;touch-action:none}
+.lightbox.show{display:flex}
+.lightbox img{width:auto;height:auto;max-width:none;max-height:none;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.lb-close{position:fixed;top:14px;right:18px;width:40px;height:40px;line-height:38px;text-align:center;color:#fff;font-size:26px;border:1px solid rgba(255,255,255,.5);border-radius:50%;z-index:10000}
+.lb-hint{position:fixed;bottom:16px;left:0;width:100%;text-align:center;color:rgba(255,255,255,.7);font-size:12px;z-index:10000}
+.lb-count{position:fixed;top:16px;left:0;width:100%;text-align:center;color:#fff;font-size:13px;font-weight:600;z-index:10000}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <div class="header-banner">
+      <img class="header-bg" src="bg-cinnamoroll-fixed.jpg" alt="">
+    </div>
+    <div class="header-title">
+      <h1>美思李工资条查询</h1>
+      <p>选月份 → 输入姓名和密码 → 查看你的工资条 🎀</p>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="field">
+      <label>月份</label>
+      <select id="month"><option>加载中...</option></select>
+    </div>
+    <div class="field">
+      <label>姓名</label>
+      <input type="text" id="name" placeholder="请输入姓名" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>密码</label>
+      <input type="password" id="code" placeholder="请输入密码" autocomplete="off">
+    </div>
+    <button class="btn" id="btn" onclick="doQuery()">查 询</button>
+    <div class="msg" id="msg"></div>
+    <div class="result" id="result">
+      <div class="multi-tip" id="multiTip"></div>
+      <div class="img-list" id="imgList"></div>
+      <div class="tip">工资条已按原图大小显示，左右滑动即可查看全貌；点击图片进入全屏，双击放大、左右拖动看细节，多张可左右滑动切换。</div>
+      <div class="save-tip">⚠ 记得及时保存自己的工资条哦！<span class="st-sub">链接可能会失效，建议每月及时保存。保存方式：点「保存到相册」用系统分享存入手机，或长按图片选择「存储到照片」。</span></div>
+    </div>
+  </div>
+  <div class="card-footer">有问题请联系财务小姐姐 · 密码要保密哟</div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <span class="lb-close" id="lbClose">×</span>
+  <div class="lb-count" id="lbCount"></div>
+  <img id="lbImg" src="" alt="工资条大图">
+  <div class="lb-hint">双击放大 · 左右拖动查看 · 双指捏合缩放 · 多张左右滑动切换 · 点×或空白处关闭</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

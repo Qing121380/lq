@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>美思李工资条查询</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'PingFang SC',-apple-system,'Microsoft YaHei UI','Hiragino Sans GB',sans-serif;background:#F5F5F7;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:40px 16px}
+.page{width:100%;max-width:420px;background:#F5F5F7;border-radius:28px;overflow:visible}
+
+/* ===== 顶部区域 ===== */
+.header{text-align:center;padding:48px 28px 8px}
+.logo-wrap{width:110px;height:110px;margin:0 auto 18px;background:#FFFFFF;border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.logo-wrap img{width:90px;height:auto}
+.title{font-size:26px;font-weight:600;color:#1D1D1F;letter-spacing:2px}
+.subtitle{margin-top:10px;font-size:14.5px;color:#86868B;line-height:1.5;letter-spacing:0.5px}
+
+/* ===== 表单卡片 (iOS分组风格) ===== */
+.form-card{margin:32px 4px 0;background:#FFFFFF;border-radius:16px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.form-row{padding:15px 18px;border-bottom:0.5px solid #E5E5EA;display:flex;flex-direction:column;gap:6px}
+.form-row:last-child{border-bottom:none}
+.form-label{font-size:13px;font-weight:600;color:#86868B}
+.form-input{border:none;outline:none;font-size:17px;color:#1D1D1F;background:transparent;width:100%;font-family:inherit;-webkit-appearance:none;appearance:none;letter-spacing:0.5px}
+.form-input::placeholder{color:#C7C7CC}
+
+/* ===== 自定义下拉框 ===== */
+.dropdown{position:relative}
+.dropdown-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;font-size:17px;color:#1D1D1F;cursor:pointer;user-select:none;letter-spacing:0.5px}
+.dropdown-trigger svg{flex-shrink:0;transition:transform 0.2s}
+.dropdown.open .dropdown-trigger svg{transform:rotate(180deg)}
+.dropdown-menu{position:absolute;top:calc(100% + 10px);left:-18px;right:-18px;background:#FFFFFF;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.12),0 2px 6px rgba(0,0,0,0.06);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:100;opacity:0;visibility:hidden;transform:translateY(-4px);transition:all 0.2s ease;padding:5px 0;max-height:300px}
+.dropdown.open .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0)}
+.dropdown-item{padding:11px 16px;font-size:15px;color:#1D1D1F;cursor:pointer;transition:background 0.1s;list-style:none;letter-spacing:0.3px}
+.dropdown-item:hover{background:#F5F5F7}
+.dropdown-item.active{background:#E8E8ED;color:#1D1D1F;font-weight:500}
+
+/* ===== 查询按钮 ===== */
+.btn-area{margin:22px 4px 0}
+.btn-query{width:100%;padding:15px;background:#1D1D1F;color:#FFFFFF;border:none;border-radius:12px;font-size:17px;font-weight:600;cursor:pointer;letter-spacing:2px;transition:opacity 0.2s;font-family:inherit}
+.btn-query:hover{opacity:0.88}
+.btn-query:active{transform:scale(0.985)}
+.btn-query:disabled{opacity:0.5;cursor:not-allowed}
+
+/* ===== 消息提示 ===== */
+.msg{margin-top:14px;padding:10px 14px;border-radius:12px;font-size:14px;text-align:center;display:none;font-weight:600}
+.msg.error{background:#FFF0F0;color:#F56C6C;display:block}
+.msg.info{background:#F5F5F7;color:#86868B;display:block}
+
+/* ===== 结果区域 ===== */
+.result-card{margin:20px 4px 0;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.04);display:none;padding:18px}
+.multi-tip{font-size:14px;color:#1D1D1F;font-weight:600;margin-bottom:12px;line-height:1.5}
+.img-list{display:flex;flex-direction:column;gap:14px}
+.img-card{border:1px solid #E5E5EA;border-radius:12px;background:#FFFFFF;overflow:hidden}
+.img-card .cap{font-size:12px;color:#86868B;padding:8px 12px;background:#F5F5F7;border-bottom:1px solid #E5E5EA;font-weight:600}
+.img-scroll{max-height:80vh;overflow:auto;-webkit-overflow-scrolling:touch;background:#FAFAFA}
+.img-scroll img{display:block;width:auto;max-width:none;height:auto;cursor:zoom-in}
+.save-link{display:inline-block;margin:10px 12px 12px;padding:7px 16px;background:#1D1D1F;color:#FFFFFF;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.5px}
+.tip{margin-top:12px;font-size:12px;color:#86868B;line-height:1.6}
+.save-tip{margin-top:14px;padding:12px 14px;border:1px solid #F0F0F0;border-radius:12px;background:#F9F9F9;color:#1D1D1F;font-size:13px;font-weight:600;line-height:1.6}
+.save-tip b{color:#FF3B30}
+.save-tip .st-sub{display:block;margin-top:4px;font-size:12px;font-weight:500;color:#86868B}
+
+/* ===== 底部提示 ===== */
+.footer-hint{text-align:center;font-size:12px;color:#AEAEB2;padding:30px 24px 36px;letter-spacing:0.3px}
+
+/* ===== 全屏放大层 ===== */
+.lightbox{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:9999;overflow:hidden;touch-action:none}
+.lightbox.show{display:flex}
+.lightbox img{width:auto;height:auto;max-width:none;max-height:none;transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none}
+.lb-close{position:fixed;top:14px;right:18px;width:40px;height:40px;line-height:38px;text-align:center;color:#fff;font-size:26px;border:1px solid rgba(255,255,255,.5);border-radius:50%;z-index:10000}
+.lb-hint{position:fixed;bottom:16px;left:0;width:100%;text-align:center;color:rgba(255,255,255,.7);font-size:12px;z-index:10000}
+.lb-count{position:fixed;top:16px;left:0;width:100%;text-align:center;color:#fff;font-size:13px;font-weight:600;z-index:10000}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 顶部：MISSLI Logo + 标题 -->
+  <div class="header">
+    <div class="logo-wrap">
+      <img src="missli-logo.png" alt="MISSLI 美思李">
+    </div>
+    <h1 class="title">美思李工资条查询</h1>
+    <p class="subtitle">选月份 → 输入姓名和密码 → 查看你的工资条</p>
+  </div>
+
+  <!-- iOS 分组表单 -->
+  <div class="form-card">
+    <div class="form-row">
+      <label class="form-label">月份</label>
+      <div class="dropdown" id="month">
+        <div class="dropdown-trigger">
+          <span>加载中...</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <ul class="dropdown-menu"></ul>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">姓名</label>
+      <input type="text" class="form-input" id="name" placeholder="请输入姓名" autocomplete="off">
+    </div>
+    <div class="form-row">
+      <label class="form-label">密码</label>
+      <input type="password" class="form-input" id="code" placeholder="请输入密码" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- 查询按钮 -->
+  <div class="btn-area">
+    <button class="btn-query" id="btn" onclick="doQuery()">查　询</button>
+  </div>
+
+  <!-- 消息与结果 -->
+  <div class="msg" id="msg"></div>
+  <div class="result-card" id="result">
+    <div class="multi-tip" id="multiTip"></div>
+    <div class="img-list" id="imgList"></div>
+    <div class="tip">工资条已按原图大小显示，左右滑动即可查看全貌；点击图片进入全屏，双击放大、左右拖动看细节，多张可左右滑动切换。</div>
+    <div class="save-tip"><b>记得及时保存自己的工资条哦！</b><span class="st-sub">链接可能会失效，建议每月及时保存。保存方式：点「保存到相册」用系统分享存入手机，或长按图片选择「存储到照片」。</span></div>
+  </div>
+
+  <!-- 底部 -->
+  <p class="footer-hint">有问题请联系财务 · 密码要保密哟</p>
+
+</div>
+
+<div class="lightbox" id="lightbox">
+  <span class="lb-close" id="lbClose">×</span>
+  <div class="lb-count" id="lbCount"></div>
+  <img id="lbImg" src="" alt="工资条大图">
+  <div class="lb-hint">双击放大 · 左右拖动查看 · 双指捏合缩放 · 多张左右滑动切换 · 点×或空白处关闭</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
